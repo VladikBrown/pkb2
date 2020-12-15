@@ -1,18 +1,22 @@
 package com.vladbrown.core.model.dao;
 
 import com.vladbrown.core.model.domain.Item;
+import com.vladbrown.core.model.domain.Person;
 import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.vladbrown.core.model.dao.CommonConstantsController.*;
 
 @Repository
 public class JdbcItemDao implements ItemDao {
@@ -23,32 +27,39 @@ public class JdbcItemDao implements ItemDao {
     @Autowired
     private CommonJdbcDaoUtils commonJdbcDaoUtils;
 
-    public static final String SELECT_PERSON_ID_BY_NAME = "SELECT id " +
-            "FROM persons " +
-            "WHERE persons.firstName = ? " +
-            "AND persons.middleName = ? " +
-            "AND persons.secondName = ?";
-
-    public static final String SELECT_FUND_ID_BY_NAME = "SELECT id " +
-            "FROM museum_funds " +
-            "WHERE museum_funds.name = ?";
-
-    public static final String SELECT_SET_ID_BY_NAME = "SELECT id " +
-            "FROM museum_item_sets " +
-            "WHERE museum_item_sets.name = ?";
-
     public static final String SELECT_ALL_ITEMS = "SELECT museum_items.id as id, inventoryNumber, " +
-            "name, creationDate, annotation, " +
+            "museum_items.name as name, creationDate, annotation, " +
             "author_id as author_id, " +
+            "persons.firstName as author_firstName, " +
+            "persons.secondName as author_secondName, " +
+            "persons.middleName as author_middleName," +
             "set_id as museumSet_id, " +
-            "fund_id as fund_id " +
-            "FROM museum_items";
+            "museum_item_sets.name as museumSet_name, " +
+            "fund_id as fund_id, " +
+            "museum_funds.name as fund_name " +
+            "FROM museum_items " +
+            "JOIN persons ON persons.id = author_id " +
+            "JOIN museum_funds ON museum_funds.id = fund_id " +
+            "JOIN museum_item_sets ON museum_item_sets.id = set_id";
+
+    public static final String SELECT_ONE_ITEM_BY_ID = "SELECT museum_items.id as id, inventoryNumber, " +
+            "museum_items.name as name, creationDate, annotation, " +
+            "author_id as author_id, " +
+            "persons.firstName as author_firstName, " +
+            "persons.secondName as author_secondName, " +
+            "persons.middleName as author_middleName," +
+            "set_id as museumSet_id, " +
+            "museum_item_sets.name as museumSet_name, " +
+            "fund_id as fund_id, " +
+            "museum_funds.name as fund_name " +
+            "FROM (SELECT * FROM museum_items WHERE museum_items.id = ?) as museum_items " +
+            "JOIN persons ON persons.id = author_id " +
+            "JOIN museum_funds ON museum_funds.id = fund_id " +
+            "JOIN museum_item_sets ON museum_item_sets.id = set_id";
 
 
-    public static final String ITEMS_TABLE_NAME = "museum_items";
-    public static final String SETS_TABLE_NAME = "museum_item_sets";
-    public static final String FUNDS_TABLE_NAME = "museum_funds";
-    public static final String PERSONS_TABLE_NAME = "persons";
+    private static final String DELETE_ITEM_BY_ID = "DELETE FROM museum_items WHERE id = ?";
+
 
     private final ResultSetExtractor<List<Item>> resultSetExtractor = JdbcTemplateMapperFactory
             .newInstance().addKeys("id")
@@ -56,11 +67,28 @@ public class JdbcItemDao implements ItemDao {
 
     @Override
     public Item getItem(Long id) {
-        return null;
+        List<Item> queryResult = jdbcTemplate.query(SELECT_ONE_ITEM_BY_ID, resultSetExtractor, id);
+        return queryResult.get(0);
     }
 
     @Override
     public void save(Item item) {
+        if (item.getId() != null) {
+            if (commonJdbcDaoUtils.isEntityExist(ITEMS_TABLE_NAME,
+                    Collections.singletonMap("id", item.getId().toString()))) {
+                update(item);
+            } else {
+                insertItemWithAllRelations(item);
+            }
+        } else if (commonJdbcDaoUtils.isEntityExist(ITEMS_TABLE_NAME,
+                Collections.singletonMap("name", item.getName()))) {
+            update(item);
+        } else {
+            insertItemWithAllRelations(item);
+        }
+    }
+
+    private void insertItemWithAllRelations(Item item) {
         insertIfExistPerson(item);
         insertIfExistFund(item);
         insertIfExistMuseumSet(item);
@@ -68,26 +96,30 @@ public class JdbcItemDao implements ItemDao {
     }
 
     private void insertIfExistItem(Item item) {
-        if (commonJdbcDaoUtils.isEntityExist(ITEMS_TABLE_NAME,
-                Collections.singletonMap("name", item.getName()))) {
-            update(item);
-        } else {
-            var simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-            item.setId((Long)simpleJdbcInsert
-                    .withTableName(ITEMS_TABLE_NAME)
-                    .usingGeneratedKeyColumns("id")
-                    .executeAndReturnKey(new MapSqlParameterSource()
-                            .addValue("inventorYNumber", item.getInventoryNumber())
-                            .addValue("name", item.getName())
-                            .addValue("creationDate", item.getCreationDate())
-                            .addValue("annotation", item.getAnnotation())
-                            .addValue("set_id", item.getMuseumSet().getId())
-                            .addValue("author_id", item.getAuthor().getId())
-                            .addValue("fund_id", item.getFund().getId())));
-        }
+        var simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        item.setId((Long) simpleJdbcInsert
+                .withTableName(ITEMS_TABLE_NAME)
+                .usingGeneratedKeyColumns("id")
+                .executeAndReturnKey(new MapSqlParameterSource()
+                        .addValue("inventorYNumber", item.getInventoryNumber())
+                        .addValue("name", item.getName())
+                        .addValue("creationDate", item.getCreationDate())
+                        .addValue("annotation", item.getAnnotation())
+                        .addValue("set_id", item.getMuseumSet().getId())
+                        .addValue("author_id", item.getAuthor().getId())
+                        .addValue("fund_id", item.getFund().getId())));
+
     }
 
     private void update(Item item) {
+        NamedParameterJdbcTemplate parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+        parameterJdbcTemplate.update(UPDATE_ITEM_SQL_QUERY, new BeanPropertySqlParameterSource(item));
+        updateRelatedPerson(item.getAuthor());
+    }
+
+    private void updateRelatedPerson(Person person) {
+        NamedParameterJdbcTemplate parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+        parameterJdbcTemplate.update(UPDATE_PERSON_SQL_QUERY, new BeanPropertySqlParameterSource(person));
     }
 
     private void insertIfExistFund(Item item) {
@@ -128,5 +160,10 @@ public class JdbcItemDao implements ItemDao {
     @Override
     public List<Item> findAll() {
         return jdbcTemplate.query(SELECT_ALL_ITEMS, resultSetExtractor);
+    }
+
+    @Override
+    public void delete(Long id) {
+        jdbcTemplate.update(DELETE_ITEM_BY_ID, id);
     }
 }

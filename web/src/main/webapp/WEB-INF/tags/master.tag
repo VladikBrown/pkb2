@@ -50,26 +50,31 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
         <a class="navbar-brand logo" href="${pageContext.servletContext.contextPath}">
-              Museum
-          </a>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto">
-                  <li class="nav-item active">
-                      <a class="nav-link" href="${pageContext.request.contextPath}/exhibitList">Items list<span class="sr-only">(current)</span></a>
-                  </li>
-                  <li class="nav-item active">
-                      <a class="nav-link" href="${pageContext.request.contextPath}/addItem">Add item<span class="sr-only">(current)</span></a>
-                  </li>
-                  <li class="nav-item active">
-                      <a class="nav-link" href="${pageContext.request.contextPath}/movements">Movements<span class="sr-only">(current)</span></a>
-                  </li>
-              </ul>
-          </div>
-      </nav>
-  </header>
+            Museum
+        </a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/itemList">Items list<span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/setList">Set list<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/addItem">Add item<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/addMovement">Add movement<span
+                            class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
 
-  <main>
+<main>
     <jsp:doBody/>
-  </main>
+</main>
 </body>
 </html>

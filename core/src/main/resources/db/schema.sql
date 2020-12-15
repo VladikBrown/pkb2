@@ -3,6 +3,7 @@ drop table if exists museum_funds;
 drop table if exists persons;
 drop table if exists museum_items;
 drop table if exists museum_item_movements;
+drop table if exists exhibitions;
 
 CREATE TABLE museum_item_sets
 (
@@ -16,6 +17,13 @@ CREATE TABLE museum_funds
     name varchar(100) UNIQUE NOT NULL
 );
 
+CREATE TABLE exhibitions
+(
+   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   name varchar(100) UNIQUE NOT NULL,
+   address varchar(100) NOT NULL,
+   phoneNumber varchar(100) NOT NULL,
+);
 
 CREATE TABLE persons
 (
@@ -40,9 +48,10 @@ CREATE TABLE museum_items
 CREATE TABLE museum_item_movements
 (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    acceptDate           timestamp,
-    exhibitTransferDate timestamp,
-    exhibitReturnDate   timestamp,
-    item_id               BIGINT NOT NULL REFERENCES museum_items (id),
+    acceptDate   DATE,
+    transferDate DATE,
+    returnDate   DATE,
+    exhibition_id BIGINT NOT NULL REFERENCES exhibitions (id),
+    set_id               BIGINT NOT NULL REFERENCES museum_item_sets (id),
     responsible_person_id BIGINT NOT NULL REFERENCES persons (id)
 );

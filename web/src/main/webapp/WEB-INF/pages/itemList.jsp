@@ -3,14 +3,17 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
-<tags:master pageTitle="Product list">
+<tags:master pageTitle="Item list">
     <div class="container">
         <br>
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Search item set" aria-label="Recipient's username"
                    aria-describedby="button-addon2">
             <div class="input-group-append">
-                <button class="btn btn-outline-success my-2 my-sm-0" id="button-addon2" type="submit">Search</button>
+                <form action="">
+                    <button class="btn btn-outline-success my-2 my-sm-0" id="button-addon2" type="submit">Search
+                    </button>
+                </form>
             </div>
         </div>
     </div>

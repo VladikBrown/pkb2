@@ -1,6 +1,8 @@
 package com.vladbrown.web.conroller.dto;
 
-public class ItemRegistrationDto {
+public class ItemInfoDto {
+
+    private Long itemId;
 
     private String fundName;
 
@@ -13,6 +15,14 @@ public class ItemRegistrationDto {
     private String annotation;
 
     private Long inventoryNumber;
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
 
     public Long getInventoryNumber() {
         return inventoryNumber;

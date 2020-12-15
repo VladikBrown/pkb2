@@ -11,4 +11,6 @@ public interface ItemDao {
     void save(Item item);
 
     List<Item> findAll();
+
+    void delete(Long id);
 }

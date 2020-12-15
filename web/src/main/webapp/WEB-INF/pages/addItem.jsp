@@ -15,16 +15,18 @@
                 <input type="text" class="form-control" id="setNameInput" name="setName">
             </div>
             <div class="form-group">
-                <label for="itemNameInput"  style="font-size: large">Item name</label>
+                <label for="itemNameInput" style="font-size: large">Item name</label>
                 <input type="text" class="form-control" id="itemNameInput" name="itemName">
             </div>
             <div class="form-group">
-                <label for="inventoryNumberInput"  style="font-size: large">Inventory number</label>
-                <input type="text" class="form-control" id="inventoryNumberInput" name="inventoryNumber" placeholder="only digits">
+                <label for="inventoryNumberInput" style="font-size: large">Inventory number</label>
+                <input type="text" class="form-control" id="inventoryNumberInput" name="inventoryNumber"
+                       placeholder="only digits">
             </div>
             <div>
                 <label for="creationDateInput" style="font-size: large">Creation date</label>
-                <input type="text" class="form-control" id="creationDateInput" placeholder="dd.mm.yyyy" name="creationDate">
+                <input type="text" class="form-control" id="creationDateInput" placeholder="yyyy-mm-dd"
+                       name="creationDate">
             </div>
             <br>
             <div>
@@ -33,7 +35,7 @@
                 </h3>
             </div>
             <div>
-                <label for="authorFirstNameInput" style="font-size: large" >First name</label>
+                <label for="authorFirstNameInput" style="font-size: large">First name</label>
                 <input type="text" class="form-control" id="authorFirstNameInput" name="firstName">
             </div>
             <div>
